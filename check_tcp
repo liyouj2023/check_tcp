@@ -1,0 +1,7 @@
+#!/bin/bash
+ABNORMAL_IP=$(netstat -an |awk '$4~/:80$/ && $6~/ESTABLISHED/{gsub(/:[0-9]+/,"",$5);{a[$5]++}}END{for(key in a)if(a[key]>100)print key}')
+for IP in $ABNORMAL_IP; do
+    if [ $(iptables -vnL |grep -c "$IP") -eq 0 ]; then
+        iptables -I INPUT -s $IP -j DROP
+    fi
+done
